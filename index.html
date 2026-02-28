@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Jihad al-Nafs</title>
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiSmloYWQgYWwtTmFmcyIsInNob3J0X25hbWUiOiJOYWZzIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwNjA2MGUiLCJ0aGVtZV9jb2xvciI6IiMwNjA2MGUiLCJpY29ucyI6W119">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#252540;border-radius:2px}
+body{font-family:'Cormorant Garamond',serif;color:#eaeaf0;min-height:100vh;min-height:100dvh;overflow-x:hidden;transition:background 1.5s}
+.cin{font-family:'Cinzel',serif}
+.container{max-width:480px;margin:0 auto;padding:24px 16px;padding-bottom:env(safe-area-inset-bottom,20px);position:relative;z-index:1}
+.glow{position:fixed;inset:0;pointer-events:none;z-index:0}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:100;opacity:0;transition:opacity 0.15s}
+.flash.on{opacity:1}
+
+/* Header */
+.header{text-align:center;margin-bottom:28px}
+.title{font-size:28px;font-weight:700;letter-spacing:6px;color:#eeeef4}
+.subtitle{font-size:11px;letter-spacing:4px;color:#8a8aa8;margin-top:6px}
+.date{font-size:13px;color:#7a7a98;margin-top:8px;font-style:italic}
+.save-status{font-size:10px;margin-top:6px;letter-spacing:2px;transition:opacity 0.3s}
+
+/* Tabs */
+.nav-tabs{display:flex;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid #252540}
+.nav-tab{flex:1;padding:10px 0;border:none;cursor:pointer;font-size:11px;letter-spacing:2px;background:#10101e;color:#7a7a98;border-bottom:2px solid transparent;transition:all 0.3s}
+.nav-tab.on{background:#8B5CF622;color:#8B5CF6;border-bottom-color:#8B5CF6}
+.action-tabs{display:flex;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid #252540}
+.action-tab{flex:1;padding:12px 0;border:none;cursor:pointer;font-size:13px;letter-spacing:2px;background:#10101e;color:#7a7a98;border-bottom:2px solid transparent;transition:all 0.3s}
+
+/* Streak */
+.streak{text-align:center;margin-bottom:24px;padding:12px 16px;border-radius:10px;display:none}
+.streak.on{display:block}
+.streak-label{font-size:11px;letter-spacing:3px;margin-bottom:6px;opacity:0.8}
+.streak-fires{font-size:24px;margin-bottom:4px}
+.streak-count{font-size:18px;letter-spacing:2px}
+.streak-msg{font-size:12px;opacity:0.7;margin-top:4px;font-style:italic;font-family:'Cormorant Garamond',serif}
+
+/* Meter */
+.meter{margin-bottom:24px}
+.meter-labels{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;letter-spacing:2px}
+.meter-bar{height:28px;border-radius:14px;background:#10101c;border:1px solid #252540;overflow:hidden;display:flex}
+.meter-blue,.meter-red{transition:width 0.8s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden}
+.meter-blue::after,.meter-red::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1) 50%,transparent);animation:shimmer 2s infinite}
+.meter-status{text-align:center;margin-top:14px;font-size:13px;letter-spacing:3px}
+
+/* Score */
+.score{display:flex;justify-content:center;gap:32px;margin-bottom:24px;font-size:22px;letter-spacing:2px}
+.score-blue{color:#00d4ff;text-shadow:0 0 12px #0066ff44}
+.score-red{color:#ff4444;text-shadow:0 0 12px #ff444444}
+.score-vs{color:#6a6a88}
+
+/* Action buttons */
+.actions{display:flex;flex-direction:column;gap:6px}
+.action-row{display:flex;align-items:stretch}
+.action-btn{display:flex;align-items:center;gap:10px;flex:1;padding:10px 14px;border-radius:8px;border:1px solid #252540;background:#10101e;color:#b0b0c8;cursor:pointer;transition:all 0.25s;font-family:'Cormorant Garamond',serif;font-size:15px;text-align:left}
+.action-btn.on-blue{border-color:#00d4ff;background:rgba(0,102,255,0.15);color:#00d4ff}
+.action-btn.on-red{border-color:#ff4444;background:rgba(204,0,0,0.15);color:#ff6666}
+.action-btn.excluded{opacity:0.3;cursor:not-allowed}
+.action-btn.has-dec{border-radius:8px 0 0 8px}
+.action-icon{font-size:18px}
+.action-icon.off{filter:grayscale(1) opacity(0.4)}
+.action-badge{font-size:11px;padding:2px 8px;border-radius:10px;letter-spacing:1px}
+.dec-btn{width:36px;border-radius:0 8px 8px 0;border:1px solid;border-left:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+
+/* Week dots */
+.week{margin-bottom:28px}
+.week-label{font-size:11px;letter-spacing:3px;color:#8a8aa8;text-align:center;margin-bottom:12px}
+.week-row{display:flex;gap:6px;justify-content:center}
+.week-day{flex:1;text-align:center;padding:8px 4px;border-radius:8px;border:1px solid #25254033}
+.week-day-label{font-size:10px;letter-spacing:1px;margin-bottom:6px}
+.week-dot{width:12px;height:12px;border-radius:50%;margin:0 auto}
+.week-score{font-size:9px;margin-top:4px}
+
+/* Quote */
+.quote-box{margin-top:24px;padding:14px 18px;border-radius:8px;background:#10101e;text-align:center;font-style:italic;font-size:14px;color:#b0b0c0;line-height:1.7}
+
+/* Month calendar */
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.month-arrow{background:none;border:none;color:#b0b0c0;cursor:pointer;font-size:18px;padding:4px 12px}
+.month-name{font-size:13px;letter-spacing:3px;color:#b0b0c8}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-header{text-align:center;font-size:10px;color:#7a7a98;padding:4px 0}
+.cal-day{background:transparent;border:1px solid transparent;border-radius:6px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.cal-day.today{border-width:1.5px}
+.cal-day.future{opacity:0.2;cursor:default}
+.cal-dot{width:8px;height:8px;border-radius:50%}
+
+/* Battle list */
+.battle-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:6px;background:#10101e;border:1px solid #252540;cursor:pointer;width:100%;text-align:left}
+.battle-bar{flex:1;height:10px;border-radius:5px;background:#10101c;overflow:hidden;display:flex}
+
+/* Weekly summaries */
+.week-card{padding:12px 14px;border-radius:8px;background:#10101e}
+.week-card-bars{display:flex;gap:4px;margin-bottom:8px}
+.week-card-bar{flex:1;height:6px;border-radius:3px}
+
+/* Bottom buttons */
+.bottom-btns{display:flex;gap:8px;justify-content:center;margin-top:32px;margin-bottom:20px}
+.bottom-btn{background:none;border:1px solid #252540;color:#8a8aa8;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:11px;letter-spacing:2px}
+
+/* Edit modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.on{display:flex}
+.modal{background:#10101e;border:1px solid #252540;border-radius:12px;max-width:480px;width:100%;max-height:85vh;overflow:auto;padding:20px 16px}
+
+/* Animations */
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="flash" id="flash"></div>
+<div class="glow" id="glow"></div>
+<div class="modal-bg" id="modal"><div class="modal" id="modal-content"></div></div>
+
+<div class="container">
+  <div class="header">
+    <h1 class="title cin" id="main-title">JIHAD AL-NAFS</h1>
+    <div class="subtitle cin">THE DARKIN WITHIN</div>
+    <div class="date" id="date-display"></div>
+    <div class="save-status cin" id="save-status"></div>
+  </div>
+
+  <div class="nav-tabs cin" id="view-tabs"></div>
+
+  <div id="view-today" style="display:none">
+    <div class="streak cin" id="streak-box"></div>
+    <div class="meter" id="meter"></div>
+    <div class="week" id="week-view"></div>
+    <div class="score cin" id="score"></div>
+    <div class="action-tabs cin" id="action-tabs"></div>
+    <div class="actions" id="actions-list"></div>
+    <div class="quote-box" id="quote"></div>
+  </div>
+
+  <div id="view-calendar" style="display:none">
+    <div class="streak cin" id="streak-box-cal"></div>
+    <div id="month-cal"></div>
+    <div style="text-align:center;font-size:12px;color:#7a7a98;font-style:italic;margin-bottom:20px">Tap any past day to edit it</div>
+    <div id="battle-list"></div>
+  </div>
+
+  <div id="view-history" style="display:none">
+    <div class="streak cin" id="streak-box-hist"></div>
+    <div class="meter" id="meter-hist"></div>
+    <div id="week-sums"></div>
+  </div>
+
+  <div class="bottom-btns">
+    <button class="bottom-btn cin" id="btn-save" style="border-color:#00d4ff33;color:#00d4ff88">FORCE SAVE</button>
+    <button class="bottom-btn cin" id="btn-reset" style="color:#6a6a88">RESET</button>
+  </div>
+</div>
+
+<script>
+// ━━━ DATA ━━━
+const MASTERY = [
+  {id:"mosque",label:"Went to the mosque",icon:"\uD83D\uDD4C",w:50},
+  {id:"bed_1030",label:"In bed by 10:30",icon:"\uD83C\uDF19",w:100},
+  {id:"bed_11",label:"In bed by 11",icon:"\uD83D\uDE34",w:50,exBy:"bed_1030"},
+  {id:"gym",label:"Went to the gym",icon:"\uD83D\uDCAA",w:50},
+  {id:"hygiene",label:"Good hygiene (shave + comb + wash)",icon:"\u2728",w:50},
+  {id:"badminton",label:"Practiced badminton",icon:"\uD83C\uDFF8",w:50},
+  {id:"iftar_mum",label:"Helped mum for iftar",icon:"\uD83C\uDF7D\uFE0F",w:50},
+  {id:"quran_30",label:"Spent 30 min reading Quran",icon:"\uD83D\uDCD6",w:50,rep:true},
+  {id:"big_task",label:"Done big task of the day",icon:"\uD83C\uDFAF",w:50,rep:true,max:3},
+  {id:"cold_dms",label:"Sent 10 cold DMs",icon:"\u2694\uFE0F",w:30,rep:true},
+  {id:"eye_routine",label:"Eye compress + massage routine",icon:"\uD83D\uDC41",w:20,rep:true,max:2},
+  {id:"fajr",label:"Prayed Fajr on time",icon:"\uD83C\uDF05",w:15},
+  {id:"salah",label:"All 5 prayers completed",icon:"\uD83E\uDD32",w:25},
+  {id:"fast",label:"Fasted today",icon:"\u262A\uFE0F",w:20},
+  {id:"lowered_gaze",label:"Lowered gaze",icon:"\uD83D\uDEE1",w:10},
+  {id:"charity",label:"Gave charity/helped someone",icon:"\uD83D\uDC8E",w:15},
+  {id:"learned",label:"Learned something valuable",icon:"\uD83E\uDDE0",w:10},
+  {id:"early_rise",label:"Woke up early",icon:"\u23F0",w:10},
+  {id:"business",label:"Worked on business/craft",icon:"\uD83D\uDD28",w:15},
+  {id:"dhikr",label:"Made dhikr/dua",icon:"\uD83D\uDCFF",w:10},
+  {id:"no_music",label:"Avoided haram entertainment",icon:"\uD83C\uDFB5",w:10},
+];
+
+const DARKIN = [
+  {id:"music",label:"Listened to music outside train/eye mask",icon:"\uD83C\uDFB5",w:100},
+  {id:"past_12",label:"Stayed up past midnight",icon:"\uD83D\uDC80",w:75},
+  {id:"dls",label:"Played DLS before 11 PM",icon:"\uD83C\uDFAE",w:50},
+  {id:"reddit",label:"Opened Reddit",icon:"\uD83D\uDC7E",w:50},
+  {id:"missed_fajr",label:"Missed Fajr",icon:"\uD83D\uDE34",w:15},
+  {id:"missed_salah",label:"Missed a prayer",icon:"\u23F3",w:15},
+  {id:"scrolled",label:"Doomscrolled / wasted time",icon:"\uD83D\uDCF1",w:10},
+  {id:"gaze",label:"Didn't lower gaze",icon:"\uD83D\uDC40",w:10},
+  {id:"anger",label:"Lost temper",icon:"\uD83D\uDD25",w:10},
+  {id:"backbite",label:"Backbit / gossiped",icon:"\uD83D\uDDE3",w:15},
+  {id:"lazy",label:"Chose comfort over duty",icon:"\uD83D\uDECB",w:10},
+  {id:"procrastinate",label:"Procrastinated on goals",icon:"\uD83D\uDD78",w:10},
+  {id:"negative",label:"Negative self-talk / despair",icon:"\uD83C\uDF11",w:10},
+  {id:"obsessed",label:"Obsessed over the unattainable",icon:"\uD83D\uDCAD",w:10},
+  {id:"envy",label:"Envied someone",icon:"\uD83D\uDC0D",w:10},
+];
+
+const QUOTES = {
+  dominating:[
+    '"I sought martyrdom in every battle but it was not destined for me." \u2014 Khalid ibn al-Walid (RA)',
+    '"We are a people whom Allah has honoured with Islam. Whenever we seek honour through anything else, Allah will humiliate us." \u2014 Umar ibn al-Khattab (RA)',
+    'My life for Aiur. Your life for the Akhirah. The transaction was completed before the battle began.',
+    'The Darkin is silent. Not dead. Silent. It fears what you have become.',
+    '313 men stood at Badr against a thousand. They had already settled the question of death. So have you.',
+    'You are not disciplined. You are devoted. There is a difference. Discipline runs out. Devotion does not.',
+    'The angels cannot do what you just did. They obey without struggle. You obeyed despite every fibre screaming otherwise. That is why you are elevated above them.',
+    '"Allah does not burden a soul beyond that it can bear." \u2014 Quran 2:286. Today you proved that ayah true.',
+    'The Spartan mother said: with your shield or on it. You came back with your shield today.',
+    'You didn\u2019t kill the nafs. You made it kneel. That\u2019s harder. That\u2019s mastery.',
+    'Khalid had the same fire before and after Islam. The difference is who held the reins. Today, you hold the reins.',
+    'The version of you that people doubt could exist \u2014 you are becoming him.',
+  ],
+  winning:[
+    'The weapon bends to your will today. But it remembers every time you\u2019ve let go. Don\u2019t give it a reason to hope.',
+    '"Verily, with hardship comes ease." \u2014 Quran 94:6. Not after hardship. With it. You\u2019re living the proof.',
+    'Kayn holds the scythe. Not the other way around. But Rhaast never stops waiting.',
+    'The nafs whispered and you chose not to listen. That single moment of refusal is worth more than a thousand intentions.',
+    '"Be in this world as if you were a stranger or a traveller along a path." \u2014 Prophet Muhammad \uFDFA',
+    'Umar (RA) was feared for his rage before Islam. After Islam, that same intensity made him the most just ruler alive. Your fire is not your enemy. Your aim is everything.',
+    'You are winning the wrestling match. But the nafs recovers faster than you think. Don\u2019t let up.',
+    'Every warrior tradition in history discovered the same truth: the man who has already given his life away before the fight starts cannot be defeated.',
+    'The struggle never ends and it\u2019s not supposed to. That\u2019s not a flaw in the system. That IS the system.',
+    'The specific nature of what torments you reveals the specific power available to you. You\u2019re forging that power right now.',
+  ],
+  even:[
+    'Neither has won. The blade hums in the silence between your choices. The next action decides everything.',
+    '"Whoever fights his nafs for Allah\u2019s sake, Allah will guide him." \u2014 Quran 29:69',
+    '"The strong man is not the one who wrestles, but the one who controls himself at the time of anger." \u2014 Prophet Muhammad \uFDFA',
+    'Resistance creates capacity. Your muscles don\u2019t grow from rest. Neither does your soul. This tension is the growth.',
+    'The battle is perfectly balanced. One prayer. One moment of discipline. One lowered gaze. That\u2019s all it takes to tip the scale.',
+    'A wire with no resistance produces nothing visible. A man with no inner struggle produces nothing remarkable. The friction is the point.',
+    'Two wolves. Same hunger. The only question that matters: which one did you feed in the last hour?',
+    'You are standing on the exact line between who you were and who you could become. Choose.',
+  ],
+  losing:[
+    '"Say: O My servants who have transgressed against themselves, do not despair of the mercy of Allah." \u2014 Quran 39:53. Read that again. He said MY SERVANTS. Even now, you belong to Him.',
+    'Rhaast does not need you to surrender. He just needs you to stop fighting. That\u2019s all. One moment of giving up. Don\u2019t give him that moment.',
+    '"Every son of Adam sins, and the best of sinners are those who repent." \u2014 Prophet Muhammad \uFDFA. The door is not closed. It is never closed.',
+    'You\u2019ve lost battles before and come back. The nafs is betting you won\u2019t this time. Prove it wrong and it will fear you by morning.',
+    'The darkness isn\u2019t the obstacle to power. The ongoing war with the darkness IS the power. You haven\u2019t lost. You\u2019re in the forge.',
+    'A man who won the battle ten years ago and hasn\u2019t fought since is weaker than a man who lost today and gets back up tomorrow.',
+    'The weapon is warm in your hands. It can feel your grip loosening. Tighten it. Now.',
+    'Remember why you started this. Not for people. Not for her. Not for dunya. For the One who sees you right now, in this exact moment of weakness, and still calls you His servant.',
+    'Your nafs wants you to believe this is who you are. It\u2019s lying. This is a moment. Not an identity.',
+  ],
+  consumed:[
+    '"And whoever turns away from My remembrance, indeed he will have a depressed, constricted life." \u2014 Quran 20:124. You can feel it, can\u2019t you? That tightness in your chest? That\u2019s not anxiety. That\u2019s distance from Him.',
+    'The nafs doesn\u2019t want to destroy you. It wants to BECOME you. To wear your face and live your life and make you forget there was ever a battle at all. Wake up.',
+    'Aatrox: "I am not your enemy. I am THE enemy." Your nafs says the same. It is not one problem among many. It is THE battle. And you\u2019re losing it.',
+    '"Return to your Lord, well-pleased and pleasing to Him." \u2014 Quran 89:28. That door is still open. Even now. Especially now.',
+    'You are not too far gone. Umar (RA) set out to kill the Prophet \uFDFA and became the greatest leader in Islamic history by nightfall. Transformation takes one sincere moment. One.',
+    'The people who call your lifestyle boring are asleep. But right now, you\u2019re sleepwalking with them. You know better than this. Get up.',
+    'Every hour you spend here is an hour stolen from the man you\u2019re supposed to become. He\u2019s waiting for you. He\u2019s running out of patience.',
+    'The Sahaba lost at Uhud. Archers left their posts for dunya. Sound familiar? But they didn\u2019t stay on the ground. Neither do you.',
+  ],
+  empty:[
+    '"Take advantage of five before five: your youth before old age, your health before sickness, your wealth before poverty, your free time before busyness, and your life before death." \u2014 Prophet Muhammad \uFDFA',
+    'A new day. A new battle. The blade remembers yesterday. Do you?',
+    '"The strong man is not the one who wrestles, but the one who controls himself at the time of anger." \u2014 Prophet Muhammad \uFDFA',
+    'Every elite warrior tradition in history discovered that you have to kill the self that fears death before you can fight properly. Fajr is your battlefield. The bed is the enemy.',
+    'You carry your discipline infrastructure inside your deen. The Spartan needed his city. The samurai needed his lord. You only need a clean patch of ground and the direction of the Qibla.',
+    'The question isn\u2019t whether Rhaast will whisper today. He will. The question is what you\u2019ll do when he does.',
+  ],
+};
+
+// ━━━ STATE ━━━
+const TODAY = new Date().toISOString().split('T')[0];
+let state = { blue:[], red:[], rc:{} };
+let history = [];
+let currentView = 'today';
+let actionTab = 'mastery';
+let calOffset = 0;
+
+// ━━━ STORAGE (localStorage - rock solid) ━━━
+function save() {
+  try {
+    localStorage.setItem('nafs-today', JSON.stringify({ date: TODAY, ...state }));
+    localStorage.setItem('nafs-history', JSON.stringify(history));
+    showSave(true);
+  } catch(e) { showSave(false); }
+}
+function load() {
+  try {
+    const td = JSON.parse(localStorage.getItem('nafs-today') || 'null');
+    const hd = JSON.parse(localStorage.getItem('nafs-history') || '[]');
+    history = hd;
+    if (td && td.date === TODAY) {
+      state = { blue: td.blue||[], red: td.red||[], rc: td.rc||{} };
+    } else if (td && td.date) {
+      const bt = calcT(td.blue||[], MASTERY, td.rc||{});
+      const rt = calcT(td.red||[], DARKIN, {});
+      if (td.blue?.length || td.red?.length) {
+        history.unshift({ date:td.date, blue:bt, red:rt, blueIds:td.blue, redIds:td.red, rc:td.rc });
+      }
+      history = history.slice(0, 90);
+      state = { blue:[], red:[], rc:{} };
+      save();
+    }
+  } catch(e) {}
+}
+function showSave(ok) {
+  const el = document.getElementById('save-status');
+  el.textContent = ok ? '\u2713 SAVED' : '\u2717 SAVE FAILED';
+  el.style.color = ok ? '#00ff8888' : '#ff444488';
+  clearTimeout(el._t); el._t = setTimeout(() => el.textContent = '', 2000);
+}
+
+// ━━━ UTILS ━━━
+function calcT(ids, actions, rc) {
+  return (ids||[]).reduce((s,id) => { const a = actions.find(x=>x.id===id); if(!a) return s; return s + a.w * (a.rep ? (rc?.[id]||1) : 1); }, 0);
+}
+function streak() { let s=0; for(const d of history) { if(d.blue>d.red)s++; else break; } return s; }
+function qCat(b,r) { if(!b&&!r) return 'empty'; const p=(b/(b+r))*100; if(p>=75)return'dominating';if(p>=55)return'winning';if(p>=45)return'even';if(p>=25)return'losing';return'consumed'; }
+function rndQ(c) { const p=QUOTES[c]; return p[Math.floor(Math.random()*p.length)]; }
+function dColor(d) { if(!d)return null;if(d.blue>d.red)return'#00d4ff';if(d.red>d.blue)return'#ff4444';if(d.blue===d.red&&d.blue>0)return'#8B5CF6';return null; }
+
+function getTheme() {
+  const r7=history.slice(0,7);if(!r7.length)return{bg1:'#131322',bg2:'#0d0d1a',bg3:'#080812',accent:'#8B5CF6',glow:'rgba(139,92,246,0.06)'};
+  const ratio=r7.filter(d=>d.blue>d.red).length/r7.length;
+  if(ratio>=0.85)return{bg1:'#0e1e34',bg2:'#0a1424',bg3:'#060e18',accent:'#00d4ff',glow:'rgba(0,212,255,0.1)'};
+  if(ratio>=0.6)return{bg1:'#0e1628',bg2:'#0a101e',bg3:'#060a14',accent:'#4488ff',glow:'rgba(68,136,255,0.07)'};
+  if(ratio>=0.4)return{bg1:'#131322',bg2:'#0d0d1a',bg3:'#080812',accent:'#8B5CF6',glow:'rgba(139,92,246,0.06)'};
+  if(ratio>=0.2)return{bg1:'#201010',bg2:'#140a0a',bg3:'#0e0606',accent:'#ff6666',glow:'rgba(255,68,68,0.07)'};
+  return{bg1:'#200a0a',bg2:'#140606',bg3:'#0e0404',accent:'#ff2222',glow:'rgba(255,34,34,0.1)'};
+}
+
+function flashScreen(color) {
+  const el=document.getElementById('flash');
+  el.style.background=color==='blue'?'radial-gradient(circle,rgba(0,102,255,0.15),transparent 70%)':'radial-gradient(circle,rgba(255,68,68,0.15),transparent 70%)';
+  el.classList.add('on');setTimeout(()=>el.classList.remove('on'),400);
+}
+
+// ━━━ TOGGLE ━━━
+function toggle(id, color, mode) {
+  const actions = color==='blue'?MASTERY:DARKIN;
+  const a = actions.find(x=>x.id===id);
+  const arr = color==='blue'?'blue':'red';
+
+  if(a.rep) {
+    if(mode==='dec') {
+      const c=(state.rc[id]||1)-1;
+      if(c<=0){delete state.rc[id];state[arr]=state[arr].filter(x=>x!==id);}
+      else state.rc[id]=c;
+    } else {
+      if(a.max&&(state.rc[id]||0)>=a.max) return;
+      if(!state[arr].includes(id)) state[arr].push(id);
+      state.rc[id]=(state.rc[id]||0)+1;
+    }
+  } else {
+    if(a.exBy && state[arr].includes(a.exBy)) return;
+    if(state[arr].includes(id)) state[arr]=state[arr].filter(x=>x!==id);
+    else { state[arr].push(id); if(id==='bed_1030') state.blue=state.blue.filter(x=>x!=='bed_11'); }
+  }
+  flashScreen(color); save(); render();
+}
+
+// ━━━ RENDER ━━━
+function render() {
+  const bt=calcT(state.blue,MASTERY,state.rc); const rt=calcT(state.red,DARKIN,state.rc);
+  const theme=getTheme(); const st=streak();
+
+  // Background
+  document.body.style.background=`radial-gradient(ellipse at 50% 0%,${theme.bg1},${theme.bg2} 50%,${theme.bg3})`;
+  document.getElementById('glow').style.background=`radial-gradient(ellipse at 50% 30%,${theme.glow},transparent 70%)`;
+  document.getElementById('main-title').style.textShadow=`0 0 30px ${theme.accent}44`;
+
+  // Date
+  document.getElementById('date-display').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  // View tabs
+  const vtEl=document.getElementById('view-tabs');
+  vtEl.innerHTML=['today','calendar','history'].map(v=>`<button class="nav-tab cin ${currentView===v?'on':''}" onclick="currentView='${v}';render()">${v==='today'?'\u2694\uFE0F TODAY':v==='calendar'?'\uD83D\uDCC5 MONTH':'\uD83D\uDCDC WEEKS'}</button>`).join('');
+
+  document.getElementById('view-today').style.display=currentView==='today'?'block':'none';
+  document.getElementById('view-calendar').style.display=currentView==='calendar'?'block':'none';
+  document.getElementById('view-history').style.display=currentView==='history'?'block':'none';
+
+  // Streak (render into all views)
+  ['streak-box','streak-box-cal','streak-box-hist'].forEach(sid=>{
+    const sel=document.getElementById(sid);
+    if(!sel) return;
+    if(!st){sel.classList.remove('on');sel.innerHTML='';return;}
+    sel.classList.add('on');
+    sel.style.background=`linear-gradient(135deg,${theme.accent}11,${theme.accent}05)`;
+    sel.style.borderColor=theme.accent+'33';
+    const n=Math.min(st,7); const icon=st>=7?'\u26A1':'\uD83D\uDD25';
+    let msg='';
+    if(st>=30)msg='A month of mastery. The nafs doesn\u2019t whisper anymore. It begs.';
+    else if(st>=14)msg='Two weeks. You are no longer fighting the nafs. You are hunting it.';
+    else if(st>=7)msg='The Sahaba didn\u2019t become legends in a day. They became legends because they never stopped.';
+    else if(st>=3)msg='Momentum is building. The nafs can feel the ground shifting beneath it.';
+    sel.innerHTML=`<div class="streak-label" style="color:${theme.accent}">SHADOW ASSASSIN STREAK</div>
+      <div class="streak-fires">${Array(n).fill(0).map((_,i)=>`<span style="animation:pulse ${1.5+i*0.2}s infinite;display:inline-block">${icon}</span>`).join('')}</div>
+      <div class="streak-count" style="color:${theme.accent};text-shadow:0 0 15px ${theme.accent}44">${st} DAY${st!==1?'S':''}</div>
+      ${msg?`<div class="streak-msg" style="color:${theme.accent}">${msg}</div>`:''}`;
+  });
+
+  // ═══ TODAY VIEW ═══
+  if(currentView==='today') {
+    // Meter
+    renderMeter('meter',bt,rt);
+    // Week
+    renderWeek(bt,rt);
+    // Score
+    document.getElementById('score').innerHTML=`<span class="score-blue">${bt}</span><span class="score-vs">vs</span><span class="score-red">${rt}</span>`;
+    // Action tabs
+    document.getElementById('action-tabs').innerHTML=`
+      <button class="action-tab cin" style="${actionTab==='mastery'?'background:#0066ff22;color:#00d4ff;border-bottom:2px solid #00d4ff':''}" onclick="actionTab='mastery';render()">\u26A1 MASTERY</button>
+      <button class="action-tab cin" style="${actionTab==='darkin'?'background:#ff444422;color:#ff6666;border-bottom:2px solid #ff4444':''}" onclick="actionTab='darkin';render()">\uD83E\uDE78 DARKIN</button>`;
+    // Actions
+    const list=document.getElementById('actions-list');
+    const acts=actionTab==='mastery'?MASTERY:DARKIN;
+    const col=actionTab==='mastery'?'blue':'red';
+    list.innerHTML=acts.map(a=>{
+      const arr=col==='blue'?state.blue:state.red;
+      const on=a.rep?(state.rc[a.id]||0)>0:arr.includes(a.id);
+      const cnt=state.rc[a.id]||0;
+      const excluded=a.exBy&&arr.includes(a.exBy);
+      const atMax=a.rep&&a.max&&cnt>=a.max;
+      const cls=on?(col==='blue'?'on-blue':'on-red'):'';
+      const exCls=excluded?'excluded':'';
+      const hasDec=a.rep&&cnt>0?'has-dec':'';
+      const pts=a.w*(a.rep?Math.max(cnt,1):1);
+      return `<div class="action-row">
+        <button class="action-btn ${cls} ${exCls} ${hasDec}" onclick="${excluded||atMax?'':`toggle('${a.id}','${col}')`}">
+          <span class="action-icon ${on?'':'off'}">${a.icon}</span>
+          <span style="flex:1">${a.label}${a.rep&&cnt>0?`<span class="cin" style="margin-left:8px;font-size:12px;color:${col==='blue'?'#0088cc':'#cc4444'}">x${cnt}${a.max?'/'+a.max:''}</span>`:''}</span>
+          ${on?`<span class="action-badge cin" style="background:${col==='blue'?'#0066ff33':'#ff444433'};color:${col==='blue'?'#00d4ff':'#ff6666'}">+${pts}</span>`:''}
+        </button>
+        ${a.rep&&cnt>0?`<button class="dec-btn" style="border-color:${col==='blue'?'#00d4ff44':'#ff444444'};background:${col==='blue'?'rgba(0,102,255,0.08)':'rgba(204,0,0,0.08)'};color:${col==='blue'?'#0088cc':'#cc4444'}" onclick="toggle('${a.id}','${col}','dec')">\u2212</button>`:''}
+      </div>`;
+    }).join('');
+    // Quote
+    document.getElementById('quote').textContent=rndQ(qCat(bt,rt));
+    document.getElementById('quote').style.borderColor=theme.accent+'22';
+  }
+
+  // ═══ CALENDAR VIEW ═══
+  if(currentView==='calendar') {
+    renderMonthCal(bt,rt);
+    renderBattleList();
+  }
+
+  // ═══ HISTORY VIEW ═══
+  if(currentView==='history') {
+    renderMeter('meter-hist',bt,rt);
+    renderWeekSums();
+  }
+}
+
+function renderMeter(elId, bt, rt) {
+  const el=document.getElementById(elId); if(!el)return;
+  const total=bt+rt||1; const bp=(bt/total)*100; const rp=(rt/total)*100;
+  let status,sc;
+  if(bp>=75){status='SHADOW ASSASSIN \u2014 The Blade Answers To You Alone';sc='#00d4ff';}
+  else if(bp>=55){status='THE NAFS RETREATS \u2014 It Can Feel You Coming';sc='#4488ff';}
+  else if(rp>=75){status='RHAAST HAS YOU \u2014 You Forgot You Were In A War';sc='#ff2222';}
+  else if(rp>=55){status='THE NAFS IS FEEDING \u2014 Every Surrender Makes It Stronger';sc='#ff6666';}
+  else{status='THE BLADE TREMBLES \u2014 Waiting To See Who Flinches First';sc='#8B5CF6';}
+  el.innerHTML=`
+    <div class="meter-labels cin"><span style="color:${bp>=55?'#00d4ff':'#4477aa'}">MASTERY ${bt}</span><span style="color:${rp>=55?'#ff4444':'#aa4444'}">DARKIN ${rt}</span></div>
+    <div class="meter-bar"><div class="meter-blue" style="width:${bp}%;background:${bp>=75?'linear-gradient(90deg,#001133,#0088ff,#00d4ff,#88eeff)':'linear-gradient(90deg,#001133,#0066ff,#00d4ff)'}"></div><div class="meter-red" style="width:${rp}%;margin-left:auto;background:${rp>=75?'linear-gradient(90deg,#ff0000,#ff4444,#ff0000,#660000)':'linear-gradient(90deg,#882222,#cc3333,#331111)'}"></div></div>
+    <div class="meter-status cin" style="color:${sc};text-shadow:0 0 20px ${sc}44">${status}</div>`;
+}
+
+function renderWeek(tB,tR) {
+  const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const now=new Date(); const dow=(now.getDay()+6)%7;
+  let html='<div class="week-label cin">THIS WEEK</div><div class="week-row">';
+  for(let i=0;i<7;i++){
+    const d=new Date(now);d.setDate(d.getDate()-(dow-i));const ds=d.toISOString().split('T')[0];
+    const isT=ds===TODAY; const hd=history.find(h=>h.date===ds); const fut=d>now&&!isT;
+    const b=isT?tB:(hd?.blue||0); const r=isT?tR:(hd?.red||0); const has=isT?(tB>0||tR>0):!!hd;
+    const w=b>r;const l=r>b; let c='#333';
+    if(fut)c='#252540';else if(!has&&!isT)c='#252540';else if(w)c='#00d4ff';else if(l)c='#ff4444';else if(has)c='#8B5CF6';
+    html+=`<div class="week-day" style="background:${w?'rgba(0,102,255,0.12)':l?'rgba(204,0,0,0.12)':'#10101e'};border-color:${c}33;opacity:${fut?0.3:1};${isT?`box-shadow:0 0 8px ${c}33`:''}">
+      <div class="week-day-label cin" style="color:${isT?c:'#555'}">${labels[i]}</div>
+      <div class="week-dot" style="background:${has||isT?`radial-gradient(circle,${c},${c}88)`:'#252540'}"></div>
+      ${has?`<div class="week-score cin" style="color:${c}">${b}-${r}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('week-view').innerHTML=html+'</div>';
+}
+
+function renderMonthCal(tB,tR) {
+  const now=new Date();const vd=new Date(now.getFullYear(),now.getMonth()+calOffset,1);
+  const mn=vd.getMonth();const yr=vd.getFullYear();
+  const mName=vd.toLocaleDateString('en-GB',{month:'long',year:'numeric'}).toUpperCase();
+  const fd=(new Date(yr,mn,1).getDay()+6)%7;const dim=new Date(yr,mn+1,0).getDate();
+  const dm={};history.forEach(d=>dm[d.date]=d);if(tB>0||tR>0)dm[TODAY]={date:TODAY,blue:tB,red:tR};
+
+  let html=`<div class="month-nav"><button class="month-arrow cin" onclick="calOffset--;render()">\u25C0</button><div class="month-name cin">${mName}</div><button class="month-arrow cin" onclick="${calOffset<0?'calOffset++;render()':''}" style="color:${calOffset<0?'#666':'#222'}">\u25B6</button></div>`;
+  html+='<div class="cal-grid">';
+  ['M','T','W','T','F','S','S'].forEach(l=>{html+=`<div class="cal-header cin">${l}</div>`;});
+  for(let i=0;i<fd;i++) html+='<div></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=`${yr}-${String(mn+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const data=dm[ds]; const isT=ds===TODAY; const fut=new Date(ds+'T12:00:00')>now&&!isT;
+    const c=dColor(data); const hd=!!data;
+    const click=!fut&&!isT?`onclick="openEdit('${ds}')"`:'';
+    html+=`<button class="cal-day ${isT?'today':''} ${fut?'future':''}" ${click} style="${isT&&c?`border-color:${c}66`:''};${hd?`background:${c}0a`:''}">
+      <span class="cin" style="font-size:11px;color:${isT?(c||'#8B5CF6'):hd?c:'#444'}">${d}</span>
+      ${hd?`<div class="cal-dot" style="background:radial-gradient(circle,${c},${c}88)"></div>`:''}
+    </button>`;
+  }
+  html+='</div>';
+  document.getElementById('month-cal').innerHTML=html;
+}
+
+function renderBattleList() {
+  if(!history.length){document.getElementById('battle-list').innerHTML='';return;}
+  let html='<div class="cin" style="font-size:11px;letter-spacing:3px;color:#8a8aa8;text-align:center;margin-bottom:12px">ALL BATTLES</div><div style="display:flex;flex-direction:column;gap:5px">';
+  history.slice(0,30).forEach(d=>{
+    const t=d.blue+d.red||1;const bp=(d.blue/t)*100;const w=d.blue>d.red;const tie=d.blue===d.red;
+    const c=w?'#00d4ff':tie?'#8B5CF6':'#ff6666';
+    html+=`<button class="battle-row" onclick="${d.date!==TODAY?`openEdit('${d.date}')`:''}">
+      <span class="cin" style="font-size:11px;color:#8a8aa8;min-width:80px">${new Date(d.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</span>
+      <div class="battle-bar"><div style="width:${bp}%;background:linear-gradient(90deg,#0066ff,#00d4ff)"></div><div style="width:${100-bp}%;background:linear-gradient(90deg,#cc0000,#ff4444)"></div></div>
+      <span class="cin" style="font-size:11px;min-width:55px;text-align:right;color:${c}">${d.blue}-${d.red}</span>
+      <span style="font-size:13px">${tie?'\u2696\uFE0F':w?'\u2728':'\uD83E\uDE78'}</span>
+      ${d.date!==TODAY?'<span style="font-size:11px;color:#6a6a88">\u270E</span>':''}
+    </button>`;
+  });
+  document.getElementById('battle-list').innerHTML=html+'</div>';
+}
+
+function renderWeekSums() {
+  const byW={};
+  [...history].sort((a,b)=>a.date.localeCompare(b.date)).forEach(d=>{const dt=new Date(d.date+'T12:00:00');const dow=(dt.getDay()+6)%7;const m=new Date(dt);m.setDate(m.getDate()-dow);const k=m.toISOString().split('T')[0];if(!byW[k])byW[k]=[];byW[k].push(d);});
+  const weeks=Object.keys(byW).sort().reverse();
+  if(!weeks.length){document.getElementById('week-sums').innerHTML='';return;}
+  let html='<div class="cin" style="font-size:11px;letter-spacing:3px;color:#8a8aa8;text-align:center;margin-bottom:12px">WEEKLY BATTLES</div><div style="display:flex;flex-direction:column;gap:8px">';
+  weeks.slice(0,8).forEach(k=>{
+    const ds=byW[k].sort((a,b)=>a.date.localeCompare(b.date));
+    const w=ds.filter(d=>d.blue>d.red).length;const l=ds.filter(d=>d.red>d.blue).length;
+    const tB=ds.reduce((s,d)=>s+d.blue,0);const tR=ds.reduce((s,d)=>s+d.red,0);
+    const best=ds.reduce((b,d)=>(!b||(d.blue-d.red)>(b.blue-b.red))?d:b,null);
+    const md=new Date(k+'T12:00:00');const sd=new Date(md);sd.setDate(sd.getDate()+6);
+    const won=tB>tR;const ac=won?'#00d4ff':tR>tB?'#ff4444':'#8B5CF6';
+    html+=`<div class="week-card" style="border:1px solid ${ac}22">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span class="cin" style="font-size:11px;color:#8a8aa8">${md.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} \u2013 ${sd.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+        <span class="cin" style="font-size:12px;color:${ac}">${w}W ${l}L</span>
+      </div>
+      <div class="week-card-bars">${ds.map(d=>`<div class="week-card-bar" style="background:${dColor(d)||'#252540'}"></div>`).join('')}${Array(7-ds.length).fill('<div class="week-card-bar" style="background:#1a1a28"></div>').join('')}</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px">
+        <span style="color:#00d4ff88">\u26A1 ${tB}</span>
+        <span style="color:#8a8aa8">${best?'Best: '+new Date(best.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short'})+' ('+best.blue+'-'+best.red+')':''}</span>
+        <span style="color:#ff444488">\uD83E\uDE78 ${tR}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('week-sums').innerHTML=html+'</div>';
+}
+
+// ━━━ EDIT MODAL ━━━
+let editState = { blue:[], red:[], rc:{} };
+let editDate = '';
+let editTab = 'mastery';
+
+function openEdit(date) {
+  editDate = date;
+  editTab = 'mastery';
+  const existing = history.find(h=>h.date===date);
+  editState = { blue: [...(existing?.blueIds||[])], red: [...(existing?.redIds||[])], rc: {...(existing?.rc||{})} };
+  renderModal();
+  document.getElementById('modal').classList.add('on');
+}
+
+function closeEdit() { document.getElementById('modal').classList.remove('on'); }
+
+function editToggle(id, color, mode) {
+  const actions=color==='blue'?MASTERY:DARKIN; const a=actions.find(x=>x.id===id);
+  const arr=color==='blue'?'blue':'red';
+  if(a.rep){
+    if(mode==='dec'){const c=(editState.rc[id]||1)-1;if(c<=0){delete editState.rc[id];editState[arr]=editState[arr].filter(x=>x!==id);}else editState.rc[id]=c;}
+    else{if(a.max&&(editState.rc[id]||0)>=a.max)return;if(!editState[arr].includes(id))editState[arr].push(id);editState.rc[id]=(editState.rc[id]||0)+1;}
+  } else {
+    if(a.exBy&&editState[arr].includes(a.exBy))return;
+    if(editState[arr].includes(id))editState[arr]=editState[arr].filter(x=>x!==id);
+    else{editState[arr].push(id);if(id==='bed_1030')editState.blue=editState.blue.filter(x=>x!=='bed_11');}
+  }
+  renderModal();
+}
+
+function saveEdit() {
+  const bt=calcT(editState.blue,MASTERY,editState.rc);const rt=calcT(editState.red,DARKIN,editState.rc);
+  const dayData={date:editDate,blue:bt,red:rt,blueIds:editState.blue,redIds:editState.red,rc:editState.rc};
+  const idx=history.findIndex(h=>h.date===editDate);
+  if(idx>=0)history[idx]=dayData;else{history.push(dayData);history.sort((a,b)=>b.date.localeCompare(a.date));}
+  history=history.slice(0,90);
+  closeEdit();save();render();
+}
+
+function renderModal() {
+  const dl=new Date(editDate+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const acts=editTab==='mastery'?MASTERY:DARKIN; const col=editTab==='mastery'?'blue':'red';
+  const bt=calcT(editState.blue,MASTERY,editState.rc);const rt=calcT(editState.red,DARKIN,editState.rc);
+
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div><div class="cin" style="font-size:13px;letter-spacing:2px;color:#b0b0c8">EDITING</div><div style="font-size:16px;color:#ddd;margin-top:4px">${dl}</div></div>
+    <button class="cin" onclick="closeEdit()" style="background:none;border:1px solid #333;color:#b0b0c0;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:11px">CANCEL</button>
+  </div>`;
+  html+=`<div style="display:flex;margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid #252540">
+    <button class="cin" onclick="editTab='mastery';renderModal()" style="flex:1;padding:10px 0;border:none;cursor:pointer;font-size:12px;letter-spacing:2px;background:${editTab==='mastery'?'#0066ff22':'#0e0e18'};color:${editTab==='mastery'?'#00d4ff':'#444'};border-bottom:${editTab==='mastery'?'2px solid #00d4ff':'2px solid transparent'}">\u26A1 MASTERY</button>
+    <button class="cin" onclick="editTab='darkin';renderModal()" style="flex:1;padding:10px 0;border:none;cursor:pointer;font-size:12px;letter-spacing:2px;background:${editTab==='darkin'?'#ff444422':'#0e0e18'};color:${editTab==='darkin'?'#ff6666':'#444'};border-bottom:${editTab==='darkin'?'2px solid #ff4444':'2px solid transparent'}">\uD83E\uDE78 DARKIN</button>
+  </div>`;
+  html+='<div style="display:flex;flex-direction:column;gap:5px">';
+  acts.forEach(a=>{
+    const arr=col==='blue'?editState.blue:editState.red;
+    const on=a.rep?(editState.rc[a.id]||0)>0:arr.includes(a.id);
+    const cnt=editState.rc[a.id]||0;const excluded=a.exBy&&arr.includes(a.exBy);const atMax=a.rep&&a.max&&cnt>=a.max;
+    const cls=on?(col==='blue'?'on-blue':'on-red'):'';const exCls=excluded?'excluded':'';const hasDec=a.rep&&cnt>0?'has-dec':'';
+    html+=`<div class="action-row"><button class="action-btn ${cls} ${exCls} ${hasDec}" onclick="${excluded||atMax?'':`editToggle('${a.id}','${col}')`}">
+      <span class="action-icon ${on?'':'off'}">${a.icon}</span><span style="flex:1">${a.label}${a.rep&&cnt>0?`<span class="cin" style="margin-left:8px;font-size:12px;color:${col==='blue'?'#0088cc':'#cc4444'}">x${cnt}${a.max?'/'+a.max:''}</span>`:''}</span>
+      ${on?`<span class="action-badge cin" style="background:${col==='blue'?'#0066ff33':'#ff444433'};color:${col==='blue'?'#00d4ff':'#ff6666'}">+${a.w*(a.rep?Math.max(cnt,1):1)}</span>`:''}
+    </button>${a.rep&&cnt>0?`<button class="dec-btn" style="border-color:${col==='blue'?'#00d4ff44':'#ff444444'};background:${col==='blue'?'rgba(0,102,255,0.08)':'rgba(204,0,0,0.08)'};color:${col==='blue'?'#0088cc':'#cc4444'}" onclick="editToggle('${a.id}','${col}','dec')">\u2212</button>`:''}</div>`;
+  });
+  html+=`</div><div class="cin" style="display:flex;justify-content:center;gap:24px;margin-top:16px;font-size:16px"><span style="color:#00d4ff">${bt}</span><span style="color:#6a6a88">vs</span><span style="color:#ff4444">${rt}</span></div>`;
+  html+=`<button class="cin" onclick="saveEdit()" style="display:block;width:100%;margin-top:16px;padding:12px 0;border-radius:8px;background:linear-gradient(135deg,#0066ff33,#8B5CF633);border:1px solid #8B5CF644;color:#ddd;cursor:pointer;font-size:13px;letter-spacing:3px">SAVE BATTLE</button>`;
+  document.getElementById('modal-content').innerHTML=html;
+}
+
+// ━━━ INIT ━━━
+document.getElementById('btn-save').onclick=()=>save();
+document.getElementById('btn-reset').onclick=()=>{
+  if(confirm('Reset all data? This cannot be undone.')){
+    state={blue:[],red:[],rc:{}};history=[];
+    localStorage.removeItem('nafs-today');localStorage.removeItem('nafs-history');
+    render();
+  }
+};
+
+load();
+render();
+</script>
+</body>
+</html>
